@@ -1,3 +1,4 @@
+require('dotenv').config();
 //////////////////////////
 // Imports
 //////////////////////////
@@ -12,14 +13,28 @@ const express = require('express');
 const port = 8080;
 const pathToDistFolder = path.join(__dirname, '../frontend/dist');
 const app = express();
+const {API_KEY} = process.env;
 
 //////////////////////////
 // Middleware/Controllers
 //////////////////////////
+const serveGifs = async(req, res) => {
+  try {
+    const url = `https://api.giphy.com/v1/gifs/trending?limit=3&rating=g&api_key=${API_KEY}`;
+    console.log(url)
+    const response = await fetch(url);
+    const data = await response.json();
+    res.send(data);
+  } catch (error) {
+    console.log(error)
+    res.status(503).send(error);
+  }
+}
 
 const serveStatic = express.static(pathToDistFolder);
 
 app.use(serveStatic);
+app.get('/api/gifs', serveGifs);
 
 //////////////////////////
 // Listener
